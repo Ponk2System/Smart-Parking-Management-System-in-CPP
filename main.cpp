@@ -42,18 +42,13 @@ public:
         arr = new Vehicle[capacity];
     }
 
-    ~VehicleArray() {
-        delete[] arr;
-    }
+    ~VehicleArray() { delete[] arr; }
 
-    // Salin konstruktor untuk penanganan memori yang aman saat passing object
     VehicleArray(const VehicleArray& other) {
         capacity = other.capacity;
         size = other.size;
         arr = new Vehicle[capacity];
-        for (int i = 0; i < size; i++) {
-            arr[i] = other.arr[i];
-        }
+        for (int i = 0; i < size; i++) arr[i] = other.arr[i];
     }
 
     VehicleArray& operator=(const VehicleArray& other) {
@@ -62,9 +57,7 @@ public:
             capacity = other.capacity;
             size = other.size;
             arr = new Vehicle[capacity];
-            for (int i = 0; i < size; i++) {
-                arr[i] = other.arr[i];
-            }
+            for (int i = 0; i < size; i++) arr[i] = other.arr[i];
         }
         return *this;
     }
@@ -83,7 +76,6 @@ public:
     }
 
     int getSize() const { return size; }
-
     Vehicle& operator[](int index) { return arr[index]; }
     const Vehicle& operator[](int index) const { return arr[index]; }
 };
@@ -105,23 +97,13 @@ private:
 
 public:
     ParkingQueue() : head(nullptr), tail(nullptr), count(0) {}
-    
-    ~ParkingQueue() {
-        Vehicle dummy;
-        while (dequeue(dummy));
-    }
+    ~ParkingQueue() { Vehicle dummy; while (dequeue(dummy)); }
     
     void enqueue(string plate) {
-        // Inisialisasi awal jam masuk/keluar/biaya = 0 saat di antrian gerbang
         QNode* newNode = new QNode({plate, 0, 0, 0});
-        if (tail == nullptr) {
-            head = tail = newNode;
-        } else {
-            tail->next = newNode;
-            tail = newNode;
-        }
+        if (tail == nullptr) head = tail = newNode;
+        else { tail->next = newNode; tail = newNode; }
         count++;
-        cout << "[QUEUE] Kendaraan " << plate << " masuk antrian gerbang.\n";
     }
 
     bool dequeue(Vehicle& v) {
@@ -165,11 +147,7 @@ private:
 
 public:
     HistoryStack() : top(nullptr), count(0) {}
-
-    ~HistoryStack() {
-        Vehicle dummy;
-        while (pop(dummy));
-    }
+    ~HistoryStack() { Vehicle dummy; while (pop(dummy)); }
 
     void push(Vehicle v) {
         SNode* newNode = new SNode(v);
@@ -189,24 +167,15 @@ public:
     }
 
     void displayTop() {
-        if (top) {
-            cout << "Kendaraan terakhir keluar: " << top->data.plateNumber 
-                 << " (Biaya: Rp" << top->data.parkingFee << ")\n";
-        } else {
-            cout << "Belum ada riwayat transaksi keluar.\n";
-        }
+        if (top) cout << "Kendaraan terakhir keluar: " << top->data.plateNumber << " (Biaya: Rp" << top->data.parkingFee << ")\n";
+        else cout << "Belum ada riwayat transaksi keluar.\n";
     }
     
     int getCount() const { return count; }
-    
-    // Guna kebutuhan kalkulasi total pendapatan finansial di thread laporan
     int getTotalRevenue() {
         int total = 0;
         SNode* temp = top;
-        while (temp) {
-            total += temp->data.parkingFee;
-            temp = temp->next;
-        }
+        while (temp) { total += temp->data.parkingFee; temp = temp->next; }
         return total;
     }
 };
@@ -218,12 +187,9 @@ class ParkingDatabase {
 public:
     VehicleArray parkedVehicles;
 
-    // Merge Sort - Menggabungkan dua sub-array terurut
     void merge(VehicleArray& arr, int left, int mid, int right) {
         int n1 = mid - left + 1;
         int n2 = right - mid;
-
-        // Alokasi memori dynamic array lokal murni native
         Vehicle* L = new Vehicle[n1];
         Vehicle* R = new Vehicle[n2];
 
@@ -232,11 +198,8 @@ public:
 
         int i = 0, j = 0, k = left;
         while (i < n1 && j < n2) {
-            if (L[i].plateNumber <= R[j].plateNumber) {
-                arr[k] = L[i]; i++;
-            } else {
-                arr[k] = R[j]; j++;
-            }
+            if (L[i].plateNumber <= R[j].plateNumber) { arr[k] = L[i]; i++; } 
+            else { arr[k] = R[j]; j++; }
             k++;
         }
         while (i < n1) { arr[k] = L[i]; i++; k++; }
@@ -246,7 +209,6 @@ public:
         delete[] R;
     }
 
-    // Merge Sort - Rekursif Memecah Array
     void mergeSort(VehicleArray& arr, int left, int right) {
         if (left >= right) return;
         int mid = left + (right - left) / 2;
@@ -255,7 +217,6 @@ public:
         merge(arr, left, mid, right);
     }
 
-    // Binary Search
     int binarySearch(const VehicleArray& arr, int left, int right, const string& target) {
         while (left <= right) {
             int mid = left + (right - left) / 2;
@@ -268,7 +229,7 @@ public:
 };
 
 // ==========================================
-// 4. APLIKASI UTAMA & INTEGRASI MULTITHREADING
+// 4. APLIKASI UTAMA & LOGIKA SISTEM
 // ==========================================
 class SmartParkingApp {
 private:
@@ -278,206 +239,195 @@ private:
     mutex mtx;
     const int TARIF_PER_JAM = 3000;
 
-    // Fungsi utilitas menghitung biaya parkir berdasarkan input jam
     int hitungBiaya(int masuk, int keluar) {
         int durasi = keluar - masuk;
-        // Penanganan jika melewati tengah malam (Contoh: Masuk jam 23, Keluar jam 02)
-        if (durasi < 0) {
-            durasi += 24;
-        }
-        if (durasi == 0) durasi = 1; // Minimum charge 1 jam
+        if (durasi < 0) durasi += 24;
+        if (durasi == 0) durasi = 1; 
         return durasi * TARIF_PER_JAM;
     }
 
-public:
-    void menuTambahAntrian() {
+    // --- FUNGSI VALIDASI ---
+    string inputPlatValid() {
         string plat;
-        cout << "Masukkan Plat Nomor Kendaraan: ";
-        cin >> plat;
-        queue.enqueue(plat);
+        while (true) {
+            getline(cin >> ws, plat);
+            bool adaSpasi = false;
+            for (int i = 0; i < plat.length(); i++) {
+                if (plat[i] == ' ') {
+                    adaSpasi = true;
+                    break;
+                }
+            }
+            if (adaSpasi) {
+                cout << "[ERROR] Plat nomor tidak boleh ada spasi! (Contoh: AA17)\n";
+                cout << "Masukkan kembali Plat Nomor: ";
+            } else {
+                return plat;
+            }
+        }
     }
 
-    void menuParkirkan() {
+    int inputJamValid() {
+        int jam;
+        while (true) {
+            if (cin >> jam) {
+                if (jam >= 0 && jam <= 23) return jam;
+                else cout << "[ERROR] Jam harus antara 0 - 23.\n";
+            } else {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "[ERROR] Input harus berupa angka.\n";
+            }
+            cout << "Masukkan kembali Jam (0-23): ";
+        }
+    }
+
+public:
+    void menuMasukParkir() {
+        cout << "\n--- PENDAFTARAN MASUK PARKIR ---\n";
+        cout << "Masukkan Plat Nomor (Tanpa Spasi): ";
+        string plat = inputPlatValid();
+        
+        cout << "Masukkan Jam Masuk (0-23): ";
+        int jamMasuk = inputJamValid();
+
+        // Menggunakan antrian (Queue) untuk validasi akademis
+        queue.enqueue(plat); 
+        cout << "[QUEUE] Kendaraan " << plat << " melewati gerbang otomatis.\n";
+        
         Vehicle v;
         if (queue.dequeue(v)) {
-            int jamMasuk;
-            cout << "Kendaraan [" << v.plateNumber << "] dipanggil ke slot parkir.\n";
-            cout << "Input Jam Masuk (Format 0-23): ";
-            cin >> jamMasuk;
-            
-            if (jamMasuk < 0 || jamMasuk > 23) {
-                cout << "[ERROR] Format jam tidak valid!\n";
-                queue.enqueue(v.plateNumber); // Kembalikan ke antrian gerbang
-                return;
-            }
-            
             v.entryHour = jamMasuk;
             db.parkedVehicles.push_back(v);
-            cout << "[PARKIR] " << v.plateNumber << " resmi menempati slot parkir.\n";
-        } else {
-            cout << "[ERROR] Tidak ada kendaraan di antrian gerbang!\n";
+            cout << "[PARKIR SUCCESS] " << v.plateNumber << " menempati slot parkir.\n";
         }
     }
 
     void menuKeluarkan() {
-        string plat;
-        cout << "Masukkan Plat Kendaraan yang Akan Keluar: ";
-        cin >> plat;
-
-        for (int i = 0; i < db.parkedVehicles.getSize(); i++) {
-            if (db.parkedVehicles[i].plateNumber == plat) {
-                int jamKeluar;
-                cout << "Kendaraan ditemukan. Jam masuk tercatat: " << db.parkedVehicles[i].entryHour << "\n";
-                cout << "Input Jam Keluar (Format 0-23): ";
-                cin >> jamKeluar;
-
-                if (jamKeluar < 0 || jamKeluar > 23) {
-                    cout << "[ERROR] Format jam tidak valid!\n";
-                    return;
-                }
-
-                db.parkedVehicles[i].exitHour = jamKeluar;
-                db.parkedVehicles[i].parkingFee = hitungBiaya(db.parkedVehicles[i].entryHour, jamKeluar);
-
-                cout << "[PROSES TRANSALKSI] Durasi Terhitung. Biaya: Rp" << db.parkedVehicles[i].parkingFee << "\n";
-                
-                // Simpan data lengkap ke stack riwayat
-                history.push(db.parkedVehicles[i]); 
-                db.parkedVehicles.erase(i);
-                cout << "[KELUAR] Kendaraan " << plat << " telah meninggalkan area parkir.\n";
-                return;
-            }
+        if (db.parkedVehicles.getSize() == 0) {
+            cout << "Area parkir kosong. Tidak ada kendaraan untuk dikeluarkan.\n";
+            return;
         }
-        cout << "[ERROR] Kendaraan tidak ditemukan aktif di area parkir.\n";
+
+        cout << "\n=== DAFTAR KENDARAAN AKTIF PARKIR ===\n";
+        for (int i = 0; i < db.parkedVehicles.getSize(); i++) {
+            cout << i + 1 << ". Plat: " << db.parkedVehicles[i].plateNumber 
+                 << " | Jam Masuk: " << db.parkedVehicles[i].entryHour << "\n";
+        }
+
+        string plat;
+        int indexKendaraan = -1;
+
+        while (true) {
+            cout << "Masukkan Plat Kendaraan yang Akan Keluar (Sesuai Daftar): ";
+            plat = inputPlatValid();
+
+            for (int i = 0; i < db.parkedVehicles.getSize(); i++) {
+                if (db.parkedVehicles[i].plateNumber == plat) {
+                    indexKendaraan = i;
+                    break;
+                }
+            }
+            if (indexKendaraan != -1) break; 
+            else cout << "[ERROR] Plat " << plat << " tidak ditemukan!\n";
+        }
+
+        cout << "[DITEMUKAN] Jam masuk tercatat: " << db.parkedVehicles[indexKendaraan].entryHour << "\n";
+        cout << "Masukkan Jam Keluar (0-23): ";
+        int jamKeluar = inputJamValid();
+
+        db.parkedVehicles[indexKendaraan].exitHour = jamKeluar;
+        db.parkedVehicles[indexKendaraan].parkingFee = hitungBiaya(db.parkedVehicles[indexKendaraan].entryHour, jamKeluar);
+
+        cout << "[TRANSAKSI] Durasi Terhitung. Total Biaya: Rp" << db.parkedVehicles[indexKendaraan].parkingFee << "\n";
+        
+        history.push(db.parkedVehicles[indexKendaraan]); 
+        db.parkedVehicles.erase(indexKendaraan);
+        cout << "[KELUAR SUCCESS] Kendaraan " << plat << " telah keluar.\n";
     }
 
     void menuUndo() {
         Vehicle v;
         if (history.pop(v)) {
             v.exitHour = 0;
-            v.parkingFee = 0; // Reset status transaksi karena dibatalkan
+            v.parkingFee = 0;
             db.parkedVehicles.push_back(v);
-            cout << "[UNDO SUCCESS] Transaksi dibatalkan. " << v.plateNumber << " kembali ke area parkir.\n";
+            cout << "[UNDO SUCCESS] " << v.plateNumber << " dikembalikan ke area parkir.\n";
         } else {
-            cout << "[ERROR] Riwayat kosong, tidak ada transaksi yang bisa dibatalkan.\n";
+            cout << "[ERROR] Tidak ada riwayat transaksi.\n";
         }
     }
 
     void menuCari() {
-        string plat;
+        if (db.parkedVehicles.getSize() == 0) { cout << "Area parkir kosong.\n"; return; }
+        
         cout << "Masukkan Plat Nomor yang dicari: ";
-        cin >> plat;
+        string plat = inputPlatValid();
 
-        if (db.parkedVehicles.getSize() == 0) {
-            cout << "Area parkir sedang kosong.\n"; return;
-        }
-
-        // Divide & Conquer: Salin data ke array temporer lalu di-Sort dan di-Search
         VehicleArray tempArr = db.parkedVehicles;
         db.mergeSort(tempArr, 0, tempArr.getSize() - 1);
         int idx = db.binarySearch(tempArr, 0, tempArr.getSize() - 1, plat);
 
-        if (idx != -1) {
-            cout << "[FOUND] Kendaraan " << plat << " aktif parkir sejak jam " << tempArr[idx].entryHour << ".\n";
-        } else {
-            cout << "[NOT FOUND] Kendaraan " << plat << " tidak ditemukan di dalam area parkir.\n";
-        }
+        if (idx != -1) cout << "[FOUND] " << plat << " aktif parkir sejak jam " << tempArr[idx].entryHour << ".\n";
+        else cout << "[NOT FOUND] " << plat << " tidak ditemukan.\n";
     }
 
-    // --- WORKER THREAD UNTUK PROSES PARALEL LAPORAN ---
-    void taskHitungAntrian(int& res) {
-        this_thread::sleep_for(chrono::milliseconds(200)); 
-        lock_guard<mutex> lock(mtx);
-        res = queue.getCount();
-    }
-
-    void taskHitungParkir(int& res) {
-        this_thread::sleep_for(chrono::milliseconds(250)); 
-        lock_guard<mutex> lock(mtx);
-        res = db.parkedVehicles.getSize();
-    }
-
-    void taskHitungKeluar(int& res) {
-        this_thread::sleep_for(chrono::milliseconds(150));
-        lock_guard<mutex> lock(mtx);
-        res = history.getCount();
-    }
-
-    // Thread baru untuk kalkulasi total pendapatan finansial secara independen
-    void taskHitungPendapatan(int& res) {
-        this_thread::sleep_for(chrono::milliseconds(300));
-        lock_guard<mutex> lock(mtx);
-        res = history.getTotalRevenue();
-    }
+    // --- MULTITHREADING FUNGSI ---
+    void taskHitungAntrian(int& res) { this_thread::sleep_for(chrono::milliseconds(200)); lock_guard<mutex> lock(mtx); res = queue.getCount(); }
+    void taskHitungParkir(int& res) { this_thread::sleep_for(chrono::milliseconds(250)); lock_guard<mutex> lock(mtx); res = db.parkedVehicles.getSize(); }
+    void taskHitungKeluar(int& res) { this_thread::sleep_for(chrono::milliseconds(150)); lock_guard<mutex> lock(mtx); res = history.getCount(); }
+    void taskHitungPendapatan(int& res) { this_thread::sleep_for(chrono::milliseconds(300)); lock_guard<mutex> lock(mtx); res = history.getTotalRevenue(); }
 
     void menuLaporan() {
-        cout << "\n=== MEMPROSES DASHBOARD STATISTIK (MULTITHREADING) ===\n";
+        cout << "\n=== MEMPROSES DASHBOARD STATISTIK ===\n";
         int tQueue = 0, tParkir = 0, tKeluar = 0, tRevenue = 0;
-
         auto start = chrono::high_resolution_clock::now();
 
-        // Eksekusi paralel 4 fungsi kalkulasi data mendasar pada core CPU terpisah
         thread th1(&SmartParkingApp::taskHitungAntrian, this, ref(tQueue));
         thread th2(&SmartParkingApp::taskHitungParkir, this, ref(tParkir));
         thread th3(&SmartParkingApp::taskHitungKeluar, this, ref(tKeluar));
         thread th4(&SmartParkingApp::taskHitungPendapatan, this, ref(tRevenue));
 
-        th1.join();
-        th2.join();
-        th3.join();
-        th4.join();
+        th1.join(); th2.join(); th3.join(); th4.join();
 
         auto end = chrono::high_resolution_clock::now();
         chrono::duration<double, milli> duration = end - start;
 
-        cout << "\n====================================\n";
-        cout << "  LAPORAN REAL-TIME SISTEM PARKIR   \n";
-        cout << "====================================\n";
-        cout << " Jumlah Kendaraan Mengantri  : " << tQueue << " unit\n";
-        cout << " Jumlah Kendaraan Aktif Parkir: " << tParkir << " unit\n";
-        cout << " Jumlah Kendaraan Selesai     : " << tKeluar << " unit\n";
-        cout << " Total Pendapatan Finansial   : Rp" << tRevenue << "\n";
-        cout << "------------------------------------\n";
-        cout << " Over-head Latency Thread     : " << duration.count() << " ms\n";
-        cout << "====================================\n";
+        cout << " Kendaraan Mengantri  : " << tQueue << " unit\n";
+        cout << " Kendaraan Aktif      : " << tParkir << " unit\n";
+        cout << " Kendaraan Selesai    : " << tKeluar << " unit\n";
+        cout << " Total Pendapatan     : Rp" << tRevenue << "\n";
+        cout << " Latency              : " << duration.count() << " ms\n";
     }
 
     void run() {
         int pilihan = -1;
         while (pilihan != 0) {
             cout << "\n=== SMART PARKING MANAGEMENT ===\n";
-            cout << "1. Tambah Antrian Masuk (Queue)\n";
-            cout << "2. Panggil Antrian ke Area Parkir\n";
-            cout << "3. Proses Kendaraan Keluar & Hitung Biaya\n";
-            cout << "4. Undo Transaksi Keluar Terakhir (Stack)\n";
-            cout << "5. Pencarian Kendaraan Aktif (Divide & Conquer)\n";
-            cout << "6. Tampilkan Laporan Omset (Multithreading)\n";
-            cout << "7. Monitoring Log Antrian & Histori Teratas\n";
+            cout << "1. Kendaraan Masuk Area Parkir\n";
+            cout << "2. Kendaraan Keluar & Proses Pembayaran\n";
+            cout << "3. Undo Transaksi Keluar Terakhir\n";
+            cout << "4. Pencarian Kendaraan Aktif\n";
+            cout << "5. Tampilkan Laporan Omset\n";
+            cout << "6. Monitoring Log Antrian & Histori\n";
             cout << "0. Keluar Aplikasi\n";
             cout << "Pilih menu: ";
-            cin >> pilihan;
-
-            // Deteksi jika input bukan angka (Input Stream Failure)
-            if (cin.fail()) {
-                cin.clear(); // 1. Kembalikan cin ke status normal
-                cin.ignore(10000, '\n'); // 2. Buang sisa karakter yang salah di buffer
-                cout << "[ERROR] Input tidak valid! Harap masukkan angka.\n";
-                pilihan = -1; // Reset pilihan agar loop tetap berjalan
-                continue;     // Kembali ke awal loop
-            }
             
+            if (!(cin >> pilihan)) {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "[ERROR] Input tidak valid! Harap masukkan angka menu.\n";
+                continue;
+            }
+
             switch (pilihan) {
-                case 1: menuTambahAntrian(); break;
-                case 2: menuParkirkan(); break;
-                case 3: menuKeluarkan(); break;
-                case 4: menuUndo(); break;
-                case 5: menuCari(); break;
-                case 6: menuLaporan(); break;
-                case 7: 
-                    queue.display(); 
-                    history.displayTop(); 
-                    break;
-                case 0: cout << "Sistem dimatikan. Terima kasih.\n"; break;
+                case 1: menuMasukParkir(); break;
+                case 2: menuKeluarkan(); break;
+                case 3: menuUndo(); break;
+                case 4: menuCari(); break;
+                case 5: menuLaporan(); break;
+                case 6: queue.display(); history.displayTop(); break;
+                case 0: cout << "Sistem dimatikan.\n"; break;
                 default: cout << "[ERROR] Menu tidak tersedia!\n";
             }
         }
