@@ -12,4 +12,12 @@ Proyek ini adalah implementasi sistem manajemen parkir cerdas berbasis C++. Proy
 
 ## Persyaratan
 
-* **Library:** Native (Sesuai dengan ketentuan implementasi, *STL container* seperti `std::vector` tidak digunakan dalam algoritma utama). 
+* **Library:** Native (Sesuai dengan ketentuan implementasi, *STL container* seperti `std::vector` tidak digunakan dalam algoritma utama).
+
+## 👥 Anggota Kelompok
+
+| No. | Nama | NIM |
+| :---: | :--- | :--- |
+| 1 | Cornelius Fransinatra Wijaya | 21120124140141 |
+| 2 | Ashar Firdaus | 21120124130062 |
+| 3 | Andre Jonathan Tampubolon | 21120124130050 |
