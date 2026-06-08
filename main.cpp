@@ -283,23 +283,27 @@ private:
     }
 
 public:
-    void menuMasukParkir() {
-        cout << "\n--- PENDAFTARAN MASUK PARKIR ---\n";
+    void menuTambahAntrian() {
+        cout << "\n--- TAMBAH ANTRIAN GERBANG ---\n";
         cout << "Masukkan Plat Nomor (Tanpa Spasi): ";
         string plat = inputPlatValid();
         
-        cout << "Masukkan Jam Masuk (0-23): ";
-        int jamMasuk = inputJamValid();
-
-        // Menggunakan antrian (Queue) untuk validasi akademis
         queue.enqueue(plat); 
-        cout << "[QUEUE] Kendaraan " << plat << " melewati gerbang otomatis.\n";
-        
+        cout << "[QUEUE] Kendaraan " << plat << " masuk antrian gerbang.\n";
+    }
+
+    void menuParkirkan() {
         Vehicle v;
         if (queue.dequeue(v)) {
+            cout << "Kendaraan [" << v.plateNumber << "] dipanggil ke slot parkir.\n";
+            cout << "Input Jam Masuk (Format 0-23): ";
+            int jamMasuk = inputJamValid(); // Menggunakan fungsi validasi agar aman dari input huruf
+            
             v.entryHour = jamMasuk;
             db.parkedVehicles.push_back(v);
-            cout << "[PARKIR SUCCESS] " << v.plateNumber << " menempati slot parkir.\n";
+            cout << "[PARKIR] " << v.plateNumber << " resmi menempati slot parkir.\n";
+        } else {
+            cout << "[ERROR] Tidak ada kendaraan di antrian gerbang!\n";
         }
     }
 
@@ -359,17 +363,34 @@ public:
     }
 
     void menuCari() {
-        if (db.parkedVehicles.getSize() == 0) { cout << "Area parkir kosong.\n"; return; }
+        if (db.parkedVehicles.getSize() == 0) { 
+            cout << "Area parkir kosong.\n"; 
+            return; 
+        }
+
+        // 1. Menampilkan list plat nomor kendaraan aktif
+        cout << "\n=== DAFTAR PLAT KENDARAAN AKTIF ===\n";
+        for (int i = 0; i < db.parkedVehicles.getSize(); i++) {
+            cout << "- " << db.parkedVehicles[i].plateNumber << "\n";
+        }
+        cout << "===================================\n";
         
+        // 2. Meminta input plat dari user
         cout << "Masukkan Plat Nomor yang dicari: ";
         string plat = inputPlatValid();
 
         VehicleArray tempArr = db.parkedVehicles;
+        // Divide and Conquer: Merge Sort
         db.mergeSort(tempArr, 0, tempArr.getSize() - 1);
+        // Divide and Conquer: Binary Search
         int idx = db.binarySearch(tempArr, 0, tempArr.getSize() - 1, plat);
 
-        if (idx != -1) cout << "[FOUND] " << plat << " aktif parkir sejak jam " << tempArr[idx].entryHour << ".\n";
-        else cout << "[NOT FOUND] " << plat << " tidak ditemukan.\n";
+        // 3. Konfirmasi plat ditemukan beserta jam masuk
+        if (idx != -1) {
+            cout << "[FOUND] Plat Nomor " << plat << " ditemukan! Kendaraan aktif parkir sejak jam " << tempArr[idx].entryHour << ".\n";
+        } else {
+            cout << "[NOT FOUND] Plat Nomor " << plat << " tidak ditemukan di area parkir.\n";
+        }
     }
 
     // --- MULTITHREADING FUNGSI ---
@@ -404,12 +425,13 @@ public:
         int pilihan = -1;
         while (pilihan != 0) {
             cout << "\n=== SMART PARKING MANAGEMENT ===\n";
-            cout << "1. Kendaraan Masuk Area Parkir\n";
-            cout << "2. Kendaraan Keluar & Proses Pembayaran\n";
-            cout << "3. Undo Transaksi Keluar Terakhir\n";
-            cout << "4. Pencarian Kendaraan Aktif\n";
-            cout << "5. Tampilkan Laporan Omset\n";
-            cout << "6. Monitoring Log Antrian & Histori\n";
+            cout << "1. Tambah Antrian Masuk (Queue)\n";
+            cout << "2. Panggil Antrian ke Area Parkir\n";
+            cout << "3. Proses Kendaraan Keluar & Hitung Biaya\n";
+            cout << "4. Undo Transaksi Keluar Terakhir (Stack)\n";
+            cout << "5. Pencarian Kendaraan Aktif (Divide & Conquer)\n";
+            cout << "6. Tampilkan Laporan Omset (Multithreading)\n";
+            cout << "7. Monitoring Log Antrian & Histori Teratas\n";
             cout << "0. Keluar Aplikasi\n";
             cout << "Pilih menu: ";
             
@@ -421,12 +443,13 @@ public:
             }
 
             switch (pilihan) {
-                case 1: menuMasukParkir(); break;
-                case 2: menuKeluarkan(); break;
-                case 3: menuUndo(); break;
-                case 4: menuCari(); break;
-                case 5: menuLaporan(); break;
-                case 6: queue.display(); history.displayTop(); break;
+                case 1: menuTambahAntrian(); break;
+                case 2: menuParkirkan(); break;
+                case 3: menuKeluarkan(); break;
+                case 4: menuUndo(); break;
+                case 5: menuCari(); break;
+                case 6: menuLaporan(); break;
+                case 7: queue.display(); history.displayTop(); break;
                 case 0: cout << "Sistem dimatikan.\n"; break;
                 default: cout << "[ERROR] Menu tidak tersedia!\n";
             }
