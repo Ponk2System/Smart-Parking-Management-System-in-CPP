@@ -457,6 +457,15 @@ public:
             cout << "Pilih menu: ";
             cin >> pilihan;
 
+            // Deteksi jika input bukan angka (Input Stream Failure)
+            if (cin.fail()) {
+                cin.clear(); // 1. Kembalikan cin ke status normal
+                cin.ignore(10000, '\n'); // 2. Buang sisa karakter yang salah di buffer
+                cout << "[ERROR] Input tidak valid! Harap masukkan angka.\n";
+                pilihan = -1; // Reset pilihan agar loop tetap berjalan
+                continue;     // Kembali ke awal loop
+            }
+            
             switch (pilihan) {
                 case 1: menuTambahAntrian(); break;
                 case 2: menuParkirkan(); break;
