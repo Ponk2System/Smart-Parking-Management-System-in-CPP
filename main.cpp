@@ -405,7 +405,7 @@ public:
         int pilihan = -1;
         while (pilihan != 0) {
             cout << "\n=== SMART PARKING MANAGEMENT ===\n";
-            cout << "1. Tambah Antrean Masuk (Queue)\n";
+            cout << "1. Tambah Antrean Masuk\n";
             cout << "2. Panggil Antrean ke Area Parkir\n";
             cout << "3. Proses Kendaraan Keluar & Hitung Biaya\n";
             cout << "4. Undo Transaksi Keluar Terakhir\n";
