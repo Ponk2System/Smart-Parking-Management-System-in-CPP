@@ -399,13 +399,13 @@ public:
         th1.join(); th2.join(); th3.join(); th4.join();
 
         auto end = chrono::high_resolution_clock::now();
-        chrono::durasi<double, milli> durasi = end - start;
+        chrono::duration<double, milli> duration = end - start;
 
         cout << " Kendaraan Mengantre  : " << tQueue << " unit\n";
         cout << " Kendaraan Aktif      : " << tParkir << " unit\n";
         cout << " Kendaraan Selesai    : " << tKeluar << " unit\n";
         cout << " Total Pendapatan     : Rp" << tRevenue << "\n";
-        cout << " Latency              : " << durasi.count() << " ms\n";
+        cout << " Latency              : " << duration.count() << " ms\n";
     }
 
     void run() {
