@@ -216,7 +216,7 @@ public:
     }
 };
 
-class SmartParkingManagementSystem {
+class SPMS {
 private:
     antreanParkir queue;
     HistoryStack history;
@@ -384,10 +384,10 @@ public:
         int tQueue = 0, tParkir = 0, tKeluar = 0, tRevenue = 0;
         auto start = chrono::high_resolution_clock::now();
 
-        thread th1(&SmartParkingManagementSystem::HitungAntrean, this, ref(tQueue));
-        thread th2(&SmartParkingManagementSystem::HitungParkir, this, ref(tParkir));
-        thread th3(&SmartParkingManagementSystem::HitungKeluar, this, ref(tKeluar));
-        thread th4(&SmartParkingManagementSystem::HitungPendapatan, this, ref(tRevenue));
+        thread th1(&SPMS::HitungAntrean, this, ref(tQueue));
+        thread th2(&SPMS::HitungParkir, this, ref(tParkir));
+        thread th3(&SPMS::HitungKeluar, this, ref(tKeluar));
+        thread th4(&SPMS::HitungPendapatan, this, ref(tRevenue));
 
         th1.join(); th2.join(); th3.join(); th4.join();
 
@@ -438,7 +438,7 @@ public:
 };
 
 int main() {
-    SmartParkingManagementSystem app;
+    SPMS app;
     app.run();
     return 0;
 }
