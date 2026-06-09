@@ -61,7 +61,7 @@ public:
         kendaraan[ukuran++] = v;
     }
 
-    void erase(int index) {
+    void hapus(int index) {
         if (index < 0 || index >= ukuran) return;
         for (int i = index; i < ukuran - 1; i++) {
             kendaraan[i] = kendaraan[i + 1];
@@ -110,9 +110,9 @@ public:
     }
 
     void display() {
-        if (!head) { cout << "Antrian gerbang kosong.\n"; return; }
+        if (!head) { cout << "Antrean gerbang kosong.\n"; return; }
         QNode* temp = head;
-        cout << "Antrian Masuk: ";
+        cout << "Antrean Masuk: ";
         while (temp) {
             cout << "[" << temp->data.platNomor << "] -> ";
             temp = temp->next;
@@ -268,13 +268,13 @@ private:
     }
 
 public:
-    void menuTambahAntrian() {
-        cout << "\n--- TAMBAH ANTRIAN GERBANG ---\n";
+    void menuTambahAntrean() {
+        cout << "\n--- TAMBAH ANTREAN GERBANG ---\n";
         cout << "Masukkan Plat Nomor (Tanpa Spasi): ";
         string plat = inputPlatValid();
         
         queue.enqueue(plat); 
-        cout << "[QUEUE] Kendaraan " << plat << " masuk antrian gerbang." << endl;
+        cout << "[QUEUE] Kendaraan " << plat << " masuk antrEan gerbang." << endl;
     }
 
     void menuParkirkan() {
@@ -288,7 +288,7 @@ public:
             db.sudahParkir.push_back(v);
             cout << "[PARKIR] " << v.platNomor << " resmi menempati slot parkir." << endl;
         } else {
-            cout << "[ERROR] Tidak ada kendaraan di antrian gerbang!" << endl;
+            cout << "[ERROR] Tidak ada kendaraan di antrean gerbang!" << endl;
         }
     }
 
@@ -331,7 +331,7 @@ public:
         cout << "[TRANSAKSI] Durasi Terhitung. Total Biaya: Rp" << db.sudahParkir[indexKendaraan].parkingFee << "\n";
         
         history.push(db.sudahParkir[indexKendaraan]); 
-        db.sudahParkir.erase(indexKendaraan);
+        db.sudahParkir.hapus(indexKendaraan);
         cout << "[KELUAR SUCCESS] Kendaraan " << plat << " telah keluar." << endl;
     }
 
@@ -374,7 +374,7 @@ public:
     }
 
     // --- MULTITHREADING FUNGSI ---
-    void HitungAntrian(int& res) { this_thread::sleep_for(chrono::milliseconds(200)); lock_guard<mutex> lock(mtx); res = queue.getHitung(); }
+    void HitungAntrean(int& res) { this_thread::sleep_for(chrono::milliseconds(200)); lock_guard<mutex> lock(mtx); res = queue.getHitung(); }
     void HitungParkir(int& res) { this_thread::sleep_for(chrono::milliseconds(250)); lock_guard<mutex> lock(mtx); res = db.sudahParkir.getSize(); }
     void HitungKeluar(int& res) { this_thread::sleep_for(chrono::milliseconds(150)); lock_guard<mutex> lock(mtx); res = history.getHitung(); }
     void HitungPendapatan(int& res) { this_thread::sleep_for(chrono::milliseconds(300)); lock_guard<mutex> lock(mtx); res = history.getTotalRevenue(); }
@@ -384,7 +384,7 @@ public:
         int tQueue = 0, tParkir = 0, tKeluar = 0, tRevenue = 0;
         auto start = chrono::high_resolution_clock::now();
 
-        thread th1(&SmartParkingManagementSystem::HitungAntrian, this, ref(tQueue));
+        thread th1(&SmartParkingManagementSystem::HitungAntrean, this, ref(tQueue));
         thread th2(&SmartParkingManagementSystem::HitungParkir, this, ref(tParkir));
         thread th3(&SmartParkingManagementSystem::HitungKeluar, this, ref(tKeluar));
         thread th4(&SmartParkingManagementSystem::HitungPendapatan, this, ref(tRevenue));
@@ -394,7 +394,7 @@ public:
         auto end = chrono::high_resolution_clock::now();
         chrono::duration<double, milli> duration = end - start;
 
-        cout << " Kendaraan Mengantri  : " << tQueue << " unit\n";
+        cout << " Kendaraan Mengantre  : " << tQueue << " unit\n";
         cout << " Kendaraan Aktif      : " << tParkir << " unit\n";
         cout << " Kendaraan Selesai    : " << tKeluar << " unit\n";
         cout << " Total Pendapatan     : Rp" << tRevenue << "\n";
@@ -405,13 +405,13 @@ public:
         int pilihan = -1;
         while (pilihan != 0) {
             cout << "\n=== SMART PARKING MANAGEMENT ===\n";
-            cout << "1. Tambah Antrian Masuk (Queue)\n";
-            cout << "2. Panggil Antrian ke Area Parkir\n";
+            cout << "1. Tambah Antrean Masuk (Queue)\n";
+            cout << "2. Panggil Antrean ke Area Parkir\n";
             cout << "3. Proses Kendaraan Keluar & Hitung Biaya\n";
-            cout << "4. Undo Transaksi Keluar Terakhir (Stack)\n";
-            cout << "5. Pencarian Kendaraan Aktif (Divide & Conquer)\n";
-            cout << "6. Tampilkan Laporan Omset (Multithreading)\n";
-            cout << "7. Monitoring Log Antrian & Histori Teratas\n";
+            cout << "4. Undo Transaksi Keluar Terakhir\n";
+            cout << "5. Pencarian Kendaraan Aktif\n";
+            cout << "6. Tampilkan Laporan Omset\n";
+            cout << "7. Monitoring Log Antrean & Histori Teratas\n";
             cout << "0. Keluar Aplikasi\n";
             cout << "Pilih menu: ";
             
@@ -423,7 +423,7 @@ public:
             }
 
             switch (pilihan) {
-                case 1: menuTambahAntrian(); break;
+                case 1: menuTambahAntrean(); break;
                 case 2: menuParkirkan(); break;
                 case 3: menuKeluarkan(); break;
                 case 4: Undo(); break;
