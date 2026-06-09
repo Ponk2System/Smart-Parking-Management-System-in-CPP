@@ -9,7 +9,7 @@ struct Kendaraan {
     string platNomor;
     int entryHour;
     int exitHour;
-    int parkingFee;
+    int biayaParkir;
 };
 
 // menggunakan Custom Dynamic Array pengganti std::vector)
@@ -69,7 +69,7 @@ public:
         ukuran--;
     }
 
-    int getSize() const { return ukuran; }
+    int getUkuran() const { return ukuran; }
     Kendaraan& operator[](int index) { return kendaraan[index]; }
     const Kendaraan& operator[](int index) const { return kendaraan[index]; }
 };
@@ -94,7 +94,9 @@ public:
     void enqueue(string plate) {
         QNode* newNode = new QNode({plate, 0, 0, 0});
         if (tail == nullptr) head = tail = newNode;
-        else { tail->next = newNode; tail = newNode; }
+        else {
+        tail->next = newNode; tail = newNode;
+        }
         hitung++;
     }
 
@@ -124,15 +126,15 @@ public:
 };
 
 // 2. Stack dan Linked List
-struct SNode {
+struct Node {
     Kendaraan data;
-    SNode* next;
-    SNode(Kendaraan v) : data(v), next(nullptr) {}
+    Node* next;
+    Node(Kendaraan v) : data(v), next(nullptr) {}
 };
 
 class HistoryStack {
 private:
-    SNode* top;
+    Node* top;
     int hitung;
 
 public:
@@ -140,7 +142,7 @@ public:
     ~HistoryStack() { Kendaraan dummy; while (pop(dummy)); }
 
     void push(Kendaraan v) {
-        SNode* newNode = new SNode(v);
+        Node* newNode = new Node(v);
         newNode->next = top;
         top = newNode;
         hitung++;
@@ -148,7 +150,7 @@ public:
 
     bool pop(Kendaraan& v) {
         if (top == nullptr) return false;
-        SNode* temp = top;
+        Node* temp = top;
         v = temp->data;
         top = top->next;
         delete temp;
@@ -157,15 +159,15 @@ public:
     }
 
     void displayTop() {
-        if (top) cout << "Kendaraan terakhir keluar: " << top->data.platNomor << " (Biaya: Rp" << top->data.parkingFee << ")\n";
+        if (top) cout << "Kendaraan terakhir keluar: " << top->data.platNomor << " (Biaya: Rp" << top->data.biayaParkir << ")\n";
         else cout << "Belum ada riwayat transaksi keluar.\n";
     }
     
     int getHitung() const { return hitung; }
-    int getTotalRevenue() {
+    int getTotalPendapatan() {
         int total = 0;
-        SNode* temp = top;
-        while (temp) { total += temp->data.parkingFee; temp = temp->next; }
+        Node* temp = top;
+        while (temp) { total += temp->data.biayaParkir; temp = temp->next; }
         return total;
     }
 };
@@ -246,7 +248,8 @@ private:
             if (adaSpasi) {
                 cout << "[ERROR] Plat nomor tidak boleh ada spasi! (Contoh: AA17)\n";
                 cout << "Masukkan kembali Plat Nomor: ";
-            } else {
+            } 
+            else {
                 return plat;
             }
         }
@@ -258,7 +261,8 @@ private:
             if (cin >> jam) {
                 if (jam >= 0 && jam <= 23) return jam;
                 else cout << "[ERROR] Jam harus antara 0 - 23.\n";
-            } else {
+            } 
+            else {
                 cin.clear();
                 cin.ignore(10000, '\n');
                 cout << "[ERROR] Input harus berupa angka.\n";
@@ -287,19 +291,20 @@ public:
             v.entryHour = jamMasuk;
             db.sudahParkir.push_back(v);
             cout << "[PARKIR] " << v.platNomor << " resmi menempati slot parkir." << endl;
-        } else {
+        } 
+        else {
             cout << "[ERROR] Tidak ada kendaraan di antrean gerbang!" << endl;
         }
     }
 
     void menuKeluarkan() {
-        if (db.sudahParkir.getSize() == 0) {
+        if (db.sudahParkir.getUkuran() == 0) {
             cout << "Area parkir kosong. Tidak ada kendaraan untuk dikeluarkan." << endl;
             return;
         }
 
         cout << "\n=== DAFTAR KENDARAAN AKTIF PARKIR ===\n";
-        for (int i = 0; i < db.sudahParkir.getSize(); i++) {
+        for (int i = 0; i < db.sudahParkir.getUkuran(); i++) {
             cout << i + 1 << ". Plat: " << db.sudahParkir[i].platNomor 
                  << " | Jam Masuk: " << db.sudahParkir[i].entryHour << "\n";
         }
@@ -311,7 +316,7 @@ public:
             cout << "Masukkan Plat Kendaraan yang Akan Keluar (Sesuai Daftar): ";
             plat = inputPlatValid();
 
-            for (int i = 0; i < db.sudahParkir.getSize(); i++) {
+            for (int i = 0; i < db.sudahParkir.getUkuran(); i++) {
                 if (db.sudahParkir[i].platNomor == plat) {
                     indexKendaraan = i;
                     break;
@@ -326,9 +331,9 @@ public:
         int jamKeluar = inputJamValid();
 
         db.sudahParkir[indexKendaraan].exitHour = jamKeluar;
-        db.sudahParkir[indexKendaraan].parkingFee = hitungBiaya(db.sudahParkir[indexKendaraan].entryHour, jamKeluar);
+        db.sudahParkir[indexKendaraan].biayaParkir = hitungBiaya(db.sudahParkir[indexKendaraan].entryHour, jamKeluar);
 
-        cout << "[TRANSAKSI] Durasi Terhitung. Total Biaya: Rp" << db.sudahParkir[indexKendaraan].parkingFee << "\n";
+        cout << "[TRANSAKSI] Durasi Terhitung. Total Biaya: Rp" << db.sudahParkir[indexKendaraan].biayaParkir << "\n";
         
         history.push(db.sudahParkir[indexKendaraan]); 
         db.sudahParkir.hapus(indexKendaraan);
@@ -339,22 +344,23 @@ public:
         Kendaraan v;
         if (history.pop(v)) {
             v.exitHour = 0;
-            v.parkingFee = 0;
+            v.biayaParkir = 0;
             db.sudahParkir.push_back(v);
             cout << "[UNDO SUCCESS] " << v.platNomor << " dikembalikan ke area parkir." << endl;
-        } else {
+        } 
+        else {
             cout << "[ERROR] Tidak ada riwayat transaksi." << endl;
         }
     }
 
     void Pencarian() {
-        if (db.sudahParkir.getSize() == 0) { 
+        if (db.sudahParkir.getUkuran() == 0) { 
             cout << "Area parkir kosong.\n"; 
             return; 
         }
 
         cout << "\n=== DAFTAR PLAT KENDARAAN AKTIF ===\n";
-        for (int i = 0; i < db.sudahParkir.getSize(); i++) {
+        for (int i = 0; i < db.sudahParkir.getUkuran(); i++) {
             cout << "- " << db.sudahParkir[i].platNomor << "\n";
         }
         cout << "===================================\n";
@@ -363,21 +369,22 @@ public:
         string plat = inputPlatValid();
 
         KendaraanArr tempArr = db.sudahParkir;
-        db.mergeSort(tempArr, 0, tempArr.getSize() - 1);
-        int idx = db.binarySearch(tempArr, 0, tempArr.getSize() - 1, plat);
+        db.mergeSort(tempArr, 0, tempArr.getUkuran() - 1);
+        int idx = db.binarySearch(tempArr, 0, tempArr.getUkuran() - 1, plat);
 
         if (idx != -1) {
             cout << "[FOUND] Plat Nomor " << plat << " ditemukan! Kendaraan aktif parkir sejak jam " << tempArr[idx].entryHour << ".\n";
-        } else {
+        } 
+        else {
             cout << "[NOT FOUND] Plat Nomor " << plat << " tidak ditemukan di area parkir.\n";
         }
     }
 
     // --- MULTITHREADING FUNGSI ---
     void HitungAntrean(int& res) { this_thread::sleep_for(chrono::milliseconds(200)); lock_guard<mutex> lock(mtx); res = queue.getHitung(); }
-    void HitungParkir(int& res) { this_thread::sleep_for(chrono::milliseconds(250)); lock_guard<mutex> lock(mtx); res = db.sudahParkir.getSize(); }
+    void HitungParkir(int& res) { this_thread::sleep_for(chrono::milliseconds(250)); lock_guard<mutex> lock(mtx); res = db.sudahParkir.getUkuran(); }
     void HitungKeluar(int& res) { this_thread::sleep_for(chrono::milliseconds(150)); lock_guard<mutex> lock(mtx); res = history.getHitung(); }
-    void HitungPendapatan(int& res) { this_thread::sleep_for(chrono::milliseconds(300)); lock_guard<mutex> lock(mtx); res = history.getTotalRevenue(); }
+    void HitungPendapatan(int& res) { this_thread::sleep_for(chrono::milliseconds(300)); lock_guard<mutex> lock(mtx); res = history.getTotalPendapatan(); }
 
     void Laporan() {
         cout << "\n=== MEMPROSES DASHBOARD STATISTIK ===\n";
@@ -392,13 +399,13 @@ public:
         th1.join(); th2.join(); th3.join(); th4.join();
 
         auto end = chrono::high_resolution_clock::now();
-        chrono::duration<double, milli> duration = end - start;
+        chrono::durasi<double, milli> durasi = end - start;
 
         cout << " Kendaraan Mengantre  : " << tQueue << " unit\n";
         cout << " Kendaraan Aktif      : " << tParkir << " unit\n";
         cout << " Kendaraan Selesai    : " << tKeluar << " unit\n";
         cout << " Total Pendapatan     : Rp" << tRevenue << "\n";
-        cout << " Latency              : " << duration.count() << " ms\n";
+        cout << " Latency              : " << durasi.count() << " ms\n";
     }
 
     void run() {
